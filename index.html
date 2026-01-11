@@ -165,22 +165,22 @@
             const clickBtn = document.getElementById('clickBtn');
             const syncBtn = document.getElementById('syncBtn');
             
-            // Данные пользователя
-            let balance = localStorage.getItem('clicker_balance') || 0;
-            let perClick = localStorage.getItem('clicker_perClick') || 1;
-            let totalClicks = localStorage.getItem('clicker_totalClicks') || 0;
+            // Данные пользователя (загружаем из localStorage)
+            let balance = parseInt(localStorage.getItem('clicker_balance')) || 0;
+            let perClick = parseInt(localStorage.getItem('clicker_perClick')) || 1;
+            let totalClicks = parseInt(localStorage.getItem('clicker_totalClicks')) || 0;
             
             // Обновляем интерфейс
             function updateUI() {
-                balanceEl.textContent = parseInt(balance).toLocaleString('ru-RU');
+                balanceEl.textContent = balance.toLocaleString('ru-RU');
                 perClickEl.textContent = perClick;
-                totalClicksEl.textContent = parseInt(totalClicks).toLocaleString('ru-RU');
+                totalClicksEl.textContent = totalClicks.toLocaleString('ru-RU');
             }
             
             // Обработчик клика
             clickBtn.addEventListener('click', () => {
-                balance = parseInt(balance) + parseInt(perClick);
-                totalClicks = parseInt(totalClicks) + parseInt(perClick);
+                balance += perClick;
+                totalClicks += perClick;
                 
                 // Сохраняем в localStorage
                 localStorage.setItem('clicker_balance', balance);
@@ -200,20 +200,24 @@
                 }
             });
             
-            // Синхронизация с ботом
+            // Синхронизация с ботом (ВАЖНО!)
             syncBtn.addEventListener('click', () => {
                 const data = {
                     action: 'sync',
                     balance: balance,
                     perClick: perClick,
-                    totalClicks: totalClicks
+                    totalClicks: totalClicks,
+                    userId: user?.id || 'unknown',
+                    username: user?.username || 'Гость'
                 };
+                
+                console.log('Отправляю данные боту:', data);
                 
                 // Отправляем данные боту
                 tg.sendData(JSON.stringify(data));
                 
                 // Показываем уведомление
-                tg.showAlert('✅ Данные отправлены боту!');
+                tg.showAlert('✅ Данные отправлены боту! Проверьте чат с ботом.');
                 
                 // Закрываем через 2 секунды
                 setTimeout(() => {
@@ -226,6 +230,7 @@
             
             // Для отладки
             console.log('Mini App загружен для пользователя:', user);
+            console.log('Текущий баланс:', balance);
         }
     </script>
 </body>
